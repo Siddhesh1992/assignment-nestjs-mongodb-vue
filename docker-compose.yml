@@ -1,0 +1,42 @@
+version: '3.1'
+services:
+  frontend:
+    container_name: frontend
+    build:
+      context: ./frontend
+    ports:
+      - 8080:8080
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+  backend:
+    container_name: backend
+    build:
+      context: ./backend
+    ports:
+      - 3000:3000
+    environment:
+      MONGO_URI: mongodb://root:example@mongo:27017/project-test?authSource=admin
+      MONGO_USERNAME: root
+      MONGO_PASSWORD: root
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo
+    restart: always
+    ports:
+      - "30017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_DATABASE: project
+    volumes:
+      - dbdata:/data/db
+
+volumes:
+  dbdata:
