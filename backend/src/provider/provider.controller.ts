@@ -7,13 +7,7 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import {
-  ApiBearerAuth,
-  ApiOperation,
-  ApiParam,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { handleResponse } from 'src/utils/handleResponse';
 import { ProviderDto } from './dtos/provider.dto';
 import { ProviderService } from './provider.service';
@@ -23,23 +17,26 @@ import { ProviderService } from './provider.service';
 export class ProviderController {
   constructor(private readonly providerService: ProviderService) {}
 
-  @Post(':id')
-  @ApiParam({
-    name: 'id',
-    type: String,
-    description: 'A Client Id',
-    required: true,
+  @Get()
+  @ApiOperation({
+    summary: 'Get Provider master',
+    description: 'Create all Provider masters',
   })
+  @ApiResponse({ status: 201, description: 'Provider Created' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  async getProvider() {
+    return handleResponse(await this.providerService.getProvider());
+  }
+
+  @Post()
   @ApiOperation({
     summary: 'Create Provider',
     description: 'Create a Provider with following details',
   })
   @ApiResponse({ status: 201, description: 'Provider Created' })
   @ApiResponse({ status: 400, description: 'Bad Request' })
-  async create(@Param('id') id, @Body() createProviderDto: ProviderDto) {
-    return handleResponse(
-      await this.providerService.create(createProviderDto, id),
-    );
+  async create(@Body() createProviderDto: ProviderDto) {
+    return handleResponse(await this.providerService.create(createProviderDto));
   }
 
   @Put(':id')

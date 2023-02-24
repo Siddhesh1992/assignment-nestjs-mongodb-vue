@@ -50,7 +50,6 @@ describe('ProviderService', () => {
       };
 
       const returnData = { error: null, data: [params] } as any;
-      const id = '123456';
       jest
         .spyOn(clientService, 'getClients')
         .mockImplementation(() => returnData);
@@ -59,7 +58,7 @@ describe('ProviderService', () => {
         .mockImplementation(() => returnData);
       jest.spyOn(mockProviderModel, 'create').mockImplementation(() => params);
 
-      const result = await service.create(params, id);
+      const result = await service.create(params);
 
       //database check
       expect(mockProviderModel.create).toHaveBeenCalledTimes(1);
@@ -68,23 +67,6 @@ describe('ProviderService', () => {
       // service function check
       expect(result.data).toEqual(params);
       expect(result.error).toBeNull();
-    });
-
-    it('should throw error', async () => {
-      const params = {
-        name: 'provider',
-      };
-
-      const returnData = { error: null, data: [] } as any;
-      const id = '123456';
-      jest
-        .spyOn(clientService, 'getClients')
-        .mockImplementation(() => returnData);
-
-      const result = await service.create(params, id);
-      // service function check
-      expect(result.data).toBeNull();
-      expect(result.error).toEqual('Client Not found');
     });
   });
 

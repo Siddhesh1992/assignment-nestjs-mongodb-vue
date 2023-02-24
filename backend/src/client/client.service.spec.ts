@@ -1,8 +1,10 @@
 import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ClientService } from './client.service';
-import { Client, ClientDocument } from './schemas/client.schema';
+import { Client } from './schemas/client.schema';
 import { Model } from 'mongoose';
+import { ProviderService } from '../provider/provider.service';
+import { Provider } from '../provider/schemas/provider.schema';
 
 const mockRepository = () => ({
   new: jest.fn().mockResolvedValue({ name: 'siddhesh' }),
@@ -21,8 +23,13 @@ describe('ClientService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ClientService,
+        ProviderService,
         {
           provide: getModelToken(Client.name),
+          useValue: mockRepository(),
+        },
+        {
+          provide: getModelToken(Provider.name),
           useValue: mockRepository(),
         },
       ],
@@ -30,6 +37,10 @@ describe('ClientService', () => {
 
     service = module.get<ClientService>(ClientService);
     mockClientModel = module.get<Model<Client>>(getModelToken(Client.name));
+
+    jest
+      .spyOn(service, 'validateProvider')
+      .mockImplementation(() => ({ error: null, data: [] } as any));
   });
 
   describe('client Create', () => {
@@ -38,7 +49,9 @@ describe('ClientService', () => {
         name: 'siddhesh',
         email: 'test@test.com',
         phone: '123-434-2323',
+        provider: ['63f83dbd445dbcc806450d60'],
       };
+
       jest.spyOn(mockClientModel, 'create').mockImplementation(() => params);
 
       const result = await service.create(params);
@@ -57,6 +70,7 @@ describe('ClientService', () => {
         name: 'siddhesh',
         email: null,
         phone: '123-434-2323',
+        provider: ['63f83dbd445dbcc806450d60'],
       };
       (mockClientModel.create as jest.Mock).mockRejectedValue(new Error());
 
@@ -78,9 +92,11 @@ describe('ClientService', () => {
         name: 'siddhesh updated',
         email: 'test@test.com',
         phone: '123-434-2323',
+        provider: ['63f83dbd445dbcc806450d60'],
       };
       const id = '1234567';
       const options = { new: true };
+
       jest.spyOn(service, 'update');
 
       jest
@@ -115,6 +131,7 @@ describe('ClientService', () => {
         name: 'siddhesh',
         email: null,
         phone: '123-434-2323',
+        provider: ['63f83dbd445dbcc806450d60'],
       };
 
       const result = await service.update(params, '12345');
@@ -166,6 +183,7 @@ describe('ClientService', () => {
         name: 'siddhesh',
         email: null,
         phone: '123-434-2323',
+        provider: ['63f83dbd445dbcc806450d60'],
       };
 
       const result = await service.update(params, '12345');

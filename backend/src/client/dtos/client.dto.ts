@@ -1,5 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsString, Matches } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  IsArray,
+  IsEmail,
+  IsString,
+  Matches,
+  ValidateNested,
+} from 'class-validator';
 
 export class ClientDto {
   @ApiProperty({ example: 'siddhesh', description: 'This is name of client' })
@@ -23,4 +30,10 @@ export class ClientDto {
   @IsString()
   @IsEmail()
   readonly email: string;
+
+  @ApiProperty({ type: [] })
+  @IsArray()
+  @IsString({ each: true })
+  @Type(() => String)
+  readonly provider: string[];
 }

@@ -3,19 +3,20 @@
 import { PartialClient } from '../../models/client';
 import { fetchClient } from '../../services/api';
 import TableComp from '../Table.vue'
+import Modal from '../Modal.vue'
 // const count = ref(0)
 export default {
   data() {
     return {
+      id: '',
       clients: [] as PartialClient[],
     }
   },
   components: {
-    TableComp,
+    TableComp, Modal
   },
   async mounted() {
     const { data, error } = await fetchClient();
-    console.log(data)
 
     if (!error) {
       this.clients = data.map(res => {
@@ -24,13 +25,29 @@ export default {
         return { name, email, phone, provider, _id }
       })
     }
+  },
+  methods: {
+    showModal(id: string) {
+      this.id = id
+    }
   }
 }
 </script>
 
 <template>
-  <TableComp :clients="clients" :isEditable="true" :isDeletable="true" />
+  {{ id }}
+  <TableComp :clients="clients" :isEditable="true" :isDeletable="true" @callModal="showModal" />
+  <Modal :id="id" @callModal="showModal" />
 </template>
+
+<!-- 
+
+  App
+  client mounted axios -- background
+  tablecomp mounted thisdata = []
+  background task finished server data
+  
+ -->
 
 <style scoped>
 .read-the-docs {

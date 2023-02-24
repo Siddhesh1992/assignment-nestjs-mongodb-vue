@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { HttpStatus } from '@nestjs/common/enums';
-import { HttpException } from '@nestjs/common/exceptions';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { ProviderService } from '../provider/provider.service';
 
 import { ClientDto } from './dtos/client.dto';
 import { Client, ClientDocument } from './schemas/client.schema';
@@ -11,10 +10,29 @@ import { Client, ClientDocument } from './schemas/client.schema';
 export class ClientService {
   constructor(
     @InjectModel(Client.name) private clientModel: Model<ClientDocument>,
+    private readonly providerService: ProviderService,
   ) {}
+
+  async validateProvider(createClientDto) {
+    const { provider } = createClientDto;
+
+    const foundProvider = await this.providerService.getProvider(provider);
+
+    if (provider.length != foundProvider?.data?.length) {
+      return { data: null, error: 'Invalid provider', statusCode: 400 };
+    }
+
+    return { error: null };
+  }
 
   async create(createClientDto: ClientDto) {
     try {
+      const validate = await this.validateProvider(createClientDto);
+
+      if (validate.error) {
+        return validate;
+      }
+
       const data = await this.clientModel.create({
         ...createClientDto,
       });
@@ -40,6 +58,12 @@ export class ClientService {
           error: 'Invalid request',
           statusCode: 400,
         };
+      }
+
+      const validate = await this.validateProvider(updateClientDto);
+
+      if (validate.error) {
+        return validate;
       }
 
       const data = await this.clientModel.findByIdAndUpdate(

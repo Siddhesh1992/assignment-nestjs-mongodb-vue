@@ -57,7 +57,7 @@ export class ClientController {
   @ApiParam({
     name: 'id',
     type: String,
-    description: 'A Optional params id to get particular client',
+    description: 'A Optional params id to update particular client',
     required: true,
   })
   @ApiOperation({
@@ -70,7 +70,6 @@ export class ClientController {
     @Param('id') id: string,
     @Body() updateClientDto: ClientDto,
   ) {
-    console.log(id);
     return handleResponse(await this.clientService.update(updateClientDto, id));
   }
 

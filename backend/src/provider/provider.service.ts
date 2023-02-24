@@ -1,34 +1,53 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { ClientService } from '../client/client.service';
 import { ProviderDto } from './dtos/provider.dto';
 
 import { Provider, ProviderDocument } from './schemas/provider.schema';
 
 @Injectable()
-export class ProviderService {
+export class ProviderService implements OnModuleInit {
   constructor(
     @InjectModel(Provider.name) private providerModel: Model<ProviderDocument>,
-    private readonly clientService: ClientService,
   ) {}
+  async onModuleInit() {
+    const data = [
+      { name: 'Provider 1' },
+      { name: 'Provider 2' },
+      { name: 'Provider 3' },
+      { name: 'Provider 4' },
+      { name: 'Provider 5' },
+    ];
 
-  async create(provider: ProviderDto, id: string) {
+    const createProvider = await this.providerModel.find({
+      name: { $in: data.map((e) => e.name) },
+    });
+
+    if (createProvider.length === 0) await this.providerModel.insertMany(data);
+  }
+
+  async getProvider(provider: string[] = []) {
     try {
-      const { data: client } = await this.clientService.getClients(id);
+      const data = await this.providerModel.find({
+        ...(provider.length && { _id: { $in: provider } }),
+        deleted: false,
+      });
 
-      if (client.length == 0) {
-        return {
-          data: null,
-          error: 'Client Not found',
-        };
-      }
+      return { data, error: null };
+    } catch (e) {
+      return {
+        data: null,
+        error: e.message,
+      };
+    }
+  }
 
+  async create(provider: ProviderDto) {
+    try {
       const data = await this.providerModel.create({
         ...provider,
       });
 
-      await this.clientService.addProvider(id, data);
       return { data, error: null, statusCode: 201 };
     } catch (e) {
       return {
