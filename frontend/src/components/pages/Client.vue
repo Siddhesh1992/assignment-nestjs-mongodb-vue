@@ -1,7 +1,7 @@
 
 <script lang="ts">
 import { PartialClient } from '../../models/client';
-import { fetchClient } from '../../services/api';
+import { fetchClientApi } from '../../services/api';
 import TableComp from '../Table.vue'
 import Modal from '../Modal.vue'
 // const count = ref(0)
@@ -16,18 +16,22 @@ export default {
     TableComp, Modal
   },
   async mounted() {
-    const { data, error } = await fetchClient();
-
-    if (!error) {
-      this.clients = data.map(res => {
-        const { name, email, phone, _id } = res;
-        const provider = res.provider.map(p => p.name).join(", ");
-        return { name, email, phone, provider, _id }
-      })
-    }
+    await this.getClient()
   },
   methods: {
-    showModal(id: string) {
+    async getClient() {
+      const { data, error } = await fetchClientApi();
+
+      if (!error) {
+        this.clients = data.map(res => {
+          const { name, email, phone, _id } = res;
+          const provider = res.provider.map(p => p.name).join(", ");
+          return { name, email, phone, provider, _id }
+        })
+      }
+    },
+    async showModal(id: string) {
+      if (!id) await this.getClient();
       this.id = id
     }
   }

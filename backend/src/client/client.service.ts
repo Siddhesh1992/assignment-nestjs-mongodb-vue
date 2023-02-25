@@ -60,16 +60,18 @@ export class ClientService {
         };
       }
 
-      const validate = await this.validateProvider(updateClientDto);
+      if (updateClientDto) {
+        const validate = await this.validateProvider(updateClientDto);
 
-      if (validate.error) {
-        return validate;
+        if (validate.error) {
+          return validate;
+        }
       }
 
       const data = await this.clientModel.findByIdAndUpdate(
         id,
         {
-          ...updateClientDto,
+          ...(updateClientDto && { ...updateClientDto }),
           deleted,
         },
         { new: true },

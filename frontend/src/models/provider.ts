@@ -5,3 +5,9 @@ export type Provider = {
   createdAt: string;
   updatedAt: string;
 };
+
+export interface ClientProvider {
+  data: Provider[];
+  message: string;
+  statusCode: number;
+}

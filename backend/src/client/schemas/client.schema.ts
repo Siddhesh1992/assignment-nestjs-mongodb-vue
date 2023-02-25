@@ -12,7 +12,7 @@ export class Client {
   @Prop({ unique: true })
   email: string;
 
-  @Prop()
+  @Prop({ unique: true })
   phone: string;
 
   @Prop({ default: false })

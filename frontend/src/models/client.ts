@@ -15,3 +15,14 @@ export interface Client {
 export interface PartialClient extends Partial<Omit<Client, "provider">> {
   provider: string;
 }
+
+export interface ClientFetch {
+  data: Client[];
+  message: string;
+  statusCode: number;
+}
+
+
+export interface CreateClient extends Pick<Client, "name" | "email" | "phone"> {
+  provider: string[];
+}
